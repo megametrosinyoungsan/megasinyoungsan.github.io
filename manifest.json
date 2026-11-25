@@ -1,0 +1,20 @@
+{
+  "name": "신용산역 메가MGC커피 출퇴근",
+  "short_name": "메가 출퇴근",
+  "description": "신용산역 메가MGC커피 지하상가점 직원 QR 출퇴근",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDD000",
+  "theme_color": "#FDD000",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="메가 출퇴근">
+<meta name="theme-color" content="#FDD000">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./apple-touch-icon.png">
+<!-- 홈 화면 아이콘: 노란 배경 + 검정 M (iOS는 apple-touch-icon PNG 필요) -->
+<meta name="format-detection" content="telephone=no">
+<title>메가 출퇴근 · 신용산역 메가MGC커피</title>
+<style>
+/* ================= 기본 ================= */
+:root{
+  --yellow:#FFD400;
+  --yellow-soft:#FFF6C9;
+  --yellow-line:#F2D34B;
+  --ink:#191919;
+  --ink2:#3D3B36;
+  --gray:#8B877C;
+  --gray2:#B4B0A4;
+  --line:#ECE8DD;
+  --bg:#F7F5EF;
+  --card:#FFFFFF;
+  --red:#D93A3A;
+  --green:#1E9E5A;
+  --r-xl:26px;
+  --r-lg:20px;
+  --r-md:14px;
+  --shadow:0 8px 26px rgba(25,25,25,.06);
+  --shadow-big:0 12px 30px rgba(255,212,0,.38);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:contain;
+}
+body::before{
+  content:"";position:fixed;left:0;right:0;top:0;height:320px;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 0%, #FFF7C2 0%, rgba(255,247,194,.35) 45%, rgba(247,245,239,0) 100%);
+}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+.wrap{
+  position:relative;z-index:1;
+  max-width:460px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top,0px) + 16px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);
+}
+.wrap.admin{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px);}
+
+/* ================= 상단 브랜드 ================= */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 2px 18px;}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;}
+.logo{
+  width:38px;height:38px;border-radius:12px;flex:0 0 38px;
+  background:var(--yellow);color:#1b1b1b;
+  display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Liberation Sans",Arial,sans-serif;
+  font-weight:700;font-size:20px;letter-spacing:-1px;
+  box-shadow:0 4px 10px rgba(255,212,0,.45);
+}
+.brand-text{display:flex;flex-direction:column;min-width:0;}
+.brand-text b{font-size:13px;letter-spacing:.4px;font-weight:800;}
+.brand-text span{font-size:12px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+.ghost-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.7);color:var(--ink2);
+  font-size:13px;font-weight:700;padding:8px 13px;border-radius:999px;
+}
+.ghost-btn:active{background:#fff;}
+
+/* ================= 공통 카드/텍스트 ================= */
+.card{background:var(--card);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;}
+.card.tight{padding:16px 18px;}
+.card-title{font-size:13px;font-weight:800;color:var(--ink2);letter-spacing:-.2px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-title .count{font-size:12px;font-weight:700;color:var(--gray);}
+.muted{color:var(--gray);font-size:13.5px;line-height:1.6;margin:0;}
+.small{font-size:12px;line-height:1.6;}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.empty{text-align:center;color:var(--gray);font-size:13.5px;padding:22px 6px;line-height:1.7;}
+
+/* 안내 배너 */
+.warn{
+  background:#FFF1E8;border:1px solid #FFD9C2;color:#8A3B12;
+  border-radius:var(--r-md);padding:13px 15px;margin-bottom:14px;
+  display:flex;flex-direction:column;gap:4px;font-size:12.5px;line-height:1.55;
+}
+.warn b{font-size:13px;}
+.notice{
+  background:var(--yellow-soft);border:1px solid var(--yellow-line);
+  border-radius:var(--r-md);padding:13px 15px;font-size:12.5px;line-height:1.6;color:#5C4A00;
+}
+.notice b{display:block;margin-bottom:3px;font-size:13px;}
+
+/* ================= 로딩 ================= */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:16px;}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid #EFE9D6;border-top-color:var(--yellow);animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{color:var(--gray);font-size:13px;margin:0;}
+
+/* ================= 시계 ================= */
+.clock-card{text-align:center;padding:10px 0 22px;}
+.clock-date{font-size:14px;font-weight:700;color:var(--ink2);letter-spacing:-.2px;}
+.clock-time{
+  margin-top:6px;font-size:66px;line-height:1;font-weight:800;letter-spacing:-3px;
+  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;justify-content:center;
+}
+.clock-time .sec{font-size:26px;font-weight:700;letter-spacing:-1px;color:var(--gray2);margin-left:2px;}
+
+/* ================= 근무 상태 ================= */
+.status-card{
+  border-radius:var(--r-lg);padding:18px 20px;margin-bottom:14px;
+  background:#fff;box-shadow:var(--shadow);border-left:5px solid #EDE8DA;
+}
+.status-card.working{border-left-color:var(--yellow);background:linear-gradient(180deg,#FFFBE6 0%,#fff 70%);}
+.status-card.done{border-left-color:var(--green);}
+.status-badge{
+  display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.2px;
+  background:#F1EEE4;color:var(--gray);padding:4px 10px;border-radius:999px;
+}
+.status-card.working .status-badge{background:var(--yellow);color:#1b1b1b;}
+.status-card.done .status-badge{background:#E4F5EA;color:var(--green);}
+.status-main{font-size:21px;font-weight:800;letter-spacing:-.6px;margin-top:10px;}
+.status-sub{font-size:13.5px;color:var(--gray);margin-top:5px;line-height:1.6;}
+.status-sub b{color:var(--ink2);font-weight:800;}
+
+/* ================= 큰 버튼 ================= */
+.big-btn{
+  width:100%;border:0;border-radius:var(--r-xl);padding:26px 20px;
+  font-size:23px;font-weight:900;letter-spacing:-.6px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:16px;transition:transform .08s ease, opacity .15s ease;
+}
+.big-btn:active{transform:scale(.985);}
+.big-btn.primary{background:var(--yellow);color:#1b1b1b;box-shadow:var(--shadow-big);}
+.big-btn.dark{background:#1B1B1B;color:#fff;box-shadow:0 12px 28px rgba(25,25,25,.22);}
+.big-btn.done{background:#EFEDE5;color:#9E9A8E;box-shadow:none;}
+.big-btn[disabled]{opacity:.55;}
+.big-btn .ico{font-size:20px;transform:translateY(-1px);}
+
+/* ================= 기록 그리드 ================= */
+.rec-grid{display:flex;gap:8px;}
+.rec-item{
+  flex:1;background:#FAF8F3;border-radius:var(--r-md);padding:12px 10px;text-align:center;
+}
+.rec-label{font-size:11.5px;color:var(--gray);font-weight:700;margin-bottom:5px;}
+.rec-value{font-size:18px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums;}
+.rec-value.dim{color:var(--gray2);font-weight:700;}
+.month-line{display:flex;align-items:baseline;justify-content:space-between;}
+.month-big{font-size:22px;font-weight:900;letter-spacing:-.6px;}
+.month-big small{font-size:13px;font-weight:700;color:var(--gray);margin-left:4px;}
+
+/* ================= 로그인 ================= */
+.login-hero{text-align:center;padding:18px 0 22px;}
+.login-hero h1{font-size:26px;margin:0;letter-spacing:-1px;font-weight:900;}
+.login-hero p{margin:8px 0 0;color:var(--gray);font-size:13.5px;line-height:1.6;}
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin:6px 0 18px;}
+.chip{
+  border:1.5px solid var(--line);background:#fff;color:var(--ink2);
+  border-radius:14px;padding:14px 6px;font-size:15px;font-weight:800;letter-spacing:-.3px;
+  text-align:center;transition:.12s;
+}
+.chip:active{transform:scale(.97);}
+.chip.on{border-color:var(--yellow);background:var(--yellow);color:#1b1b1b;box-shadow:0 6px 14px rgba(255,212,0,.35);}
+.field-label{font-size:12px;font-weight:800;color:var(--ink2);margin:0 0 8px 2px;display:block;}
+.pin-input{
+  width:100%;border:1.5px solid var(--line);background:#FAF8F3;border-radius:16px;
+  padding:16px;font-size:24px;font-weight:800;letter-spacing:11px;text-align:center;
+  color:var(--ink);outline:none;font-variant-numeric:tabular-nums;
+}
+.pin-input:focus{border-color:var(--yellow);background:#fff;}
+.pin-input::placeholder{letter-spacing:6px;color:#CFCABD;}
+.checkbox{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink2);margin:14px 2px 18px;font-weight:600;}
+.checkbox input{width:19px;height:19px;accent-color:#E8BE00;margin:0;}
+.btn{
+  width:100%;border:0;border-radius:16px;padding:17px;font-size:16px;font-weight:800;letter-spacing:-.3px;
+}
+.btn.primary{background:var(--yellow);color:#1b1b1b;box-shadow:0 8px 18px rgba(255,212,0,.3);}
+.btn.dark{background:#1B1B1B;color:#fff;}
+.btn.line{background:#fff;border:1.5px solid var(--line);color:var(--ink2);}
+.btn.small{padding:10px 12px;font-size:13px;border-radius:12px;width:auto;}
+.btn.danger-line{background:#fff;border:1.5px solid #F3C9C9;color:var(--red);}
+.btn:active{transform:scale(.99);}
+.link-btn{
+  display:block;width:100%;background:none;border:0;color:var(--gray);
+  font-size:13px;font-weight:700;padding:14px 0 4px;text-align:center;text-decoration:underline;text-underline-offset:3px;
+}
+.link-btn.danger{color:var(--red);}
+.footnote{text-align:center;color:var(--gray2);font-size:11.5px;line-height:1.6;margin:18px 0 0;}
+.me-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:0 4px;}
+.me-foot .who{font-size:13px;color:var(--gray);font-weight:700;}
+.me-foot .link-btn{width:auto;padding:0;font-size:12.5px;}
+
+/* 폼 */
+.field{margin-bottom:12px;}
+.field input,.field select{
+  width:100%;border:1.5px solid var(--line);background:#FAF8F3;border-radius:13px;
+  padding:14px;font-size:16px;color:var(--ink);outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--yellow);background:#fff;}
+.row-2{display:flex;gap:8px;}
+.row-2 > *{flex:1;min-width:0;}
+
+/* ================= 관리자 헤더/탭 ================= */
+.admin-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 16px;}
+.admin-head .who{font-size:12px;color:var(--gray);font-weight:700;}
+.admin-head h2{font-size:22px;margin:2px 0 0;letter-spacing:-.8px;font-weight:900;}
+.nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  max-width:460px;margin:0 auto;
+  background:rgba(255,255,255,.96);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  display:flex;padding:9px 8px calc(9px + env(safe-area-inset-bottom,0px));
+}
+.nav-item{
+  flex:1;background:none;border:0;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  color:var(--gray2);font-size:11px;font-weight:800;letter-spacing:-.2px;
+}
+.nav-item svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.nav-item.on{color:var(--ink);}
+.nav-item.on svg{stroke:#1b1b1b;}
+
+/* ================= 달력 ================= */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 12px;}
+.month-nav .label{font-size:19px;font-weight:900;letter-spacing:-.7px;}
+.month-nav .label span{font-size:13px;font-weight:700;color:var(--gray);margin-left:4px;}
+.nav-btn{
+  width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;
+  font-size:17px;font-weight:800;color:var(--ink2);display:flex;align-items:center;justify-content:center;
+}
+.cal{padding:14px 12px 12px;}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
+.cal-week span{text-align:center;font-size:11.5px;font-weight:800;color:var(--gray);}
+.cal-week span:first-child{color:#D46A6A;}
+.cal-week span:last-child{color:#5B86C9;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-cell{
+  position:relative;border:0;background:none;border-radius:12px;
+  min-height:52px;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;
+}
+.cal-cell.empty{pointer-events:none;}
+.cal-cell .cal-d{font-size:13.5px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums;margin-top:2px;}
+.cal-cell.sun .cal-d{color:#D46A6A;}
+.cal-cell.sat .cal-d{color:#5B86C9;}
+.cal-cell.has{background:#FFFBE2;}
+.cal-cell.has .cal-badge{
+  font-size:10px;font-weight:900;background:var(--yellow);color:#1b1b1b;
+  border-radius:999px;padding:1px 6px;line-height:1.5;white-space:nowrap;
+}
+.cal-cell.today{box-shadow:inset 0 0 0 2px var(--ink);}
+.cal-cell:active{background:#F1ECDA;}
+.sum-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+.sum-row:last-child{border-bottom:0;}
+.sum-row .name{font-weight:800;color:var(--ink2);}
+.sum-row .val{font-weight:800;font-variant-numeric:tabular-nums;}
+.sum-row .days{color:var(--gray);font-size:12px;font-weight:700;margin-left:6px;}
+.bar{height:5px;border-radius:3px;background:#F1EEE4;margin-top:6px;overflow:hidden;}
+.bar i{display:block;height:100%;background:var(--yellow);border-radius:3px;}
+.month-total{display:flex;gap:10px;}
+.month-total .box{flex:1;background:#FAF8F3;border-radius:var(--r-md);padding:14px 12px;text-align:center;}
+.month-total .box b{display:block;font-size:20px;font-weight:900;letter-spacing:-.5px;}
+.month-total .box span{font-size:11.5px;color:var(--gray);font-weight:700;}
+
+/* ================= 직원 관리 ================= */
+.staff-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);}
+.staff-row:last-child{border-bottom:0;}
+.staff-row .nm{font-weight:800;font-size:15px;letter-spacing:-.3px;}
+.staff-row .meta{font-size:11.5px;color:var(--gray);margin-top:3px;}
+.staff-row .side{margin-left:auto;display:flex;gap:6px;align-items:center;}
+.pill{font-size:10.5px;font-weight:900;padding:3px 8px;border-radius:999px;background:#F1EEE4;color:var(--gray);}
+.pill.on{background:#E4F5EA;color:var(--green);}
+.pill.off{background:#F6E7E7;color:var(--red);}
+.mini-btn{
+  border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:10px;
+  font-size:12px;font-weight:800;padding:8px 10px;
+}
+.mini-btn.danger{color:var(--red);border-color:#F3D2D2;}
+.mini-btn.solid{background:var(--yellow);border-color:var(--yellow);color:#1b1b1b;}
+.pin-reveal{
+  background:#1B1B1B;color:#fff;border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.pin-reveal b{font-size:21px;letter-spacing:4px;font-variant-numeric:tabular-nums;}
+.pin-reveal span{font-size:12px;opacity:.75;}
+.pin-reveal button{background:none;border:0;color:#fff;font-size:12px;opacity:.7;font-weight:700;}
+
+/* ================= QR ================= */
+.qr-card{
+  background:#fff;border-radius:24px;padding:24px 20px 20px;text-align:center;
+  box-shadow:var(--shadow);border:2px solid var(--yellow);margin-bottom:14px;
+}
+.qr-brand{font-size:12px;font-weight:800;letter-spacing:2px;color:var(--gray);}
+.qr-store{font-size:17px;font-weight:900;letter-spacing:-.5px;margin:6px 0 16px;line-height:1.35;}
+.qr-box{
+  width:100%;max-width:280px;margin:0 auto;aspect-ratio:1/1;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;border-radius:16px;overflow:hidden;
+}
+.qr-box img,.qr-box canvas{width:100% !important;height:100% !important;display:block;}
+.qr-wait{color:var(--gray2);font-size:12px;}
+.qr-fail{color:var(--gray);font-size:12px;line-height:1.7;padding:10px;}
+.qr-steps{
+  margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+  font-size:12px;color:var(--ink2);line-height:1.9;font-weight:600;
+}
+.qr-steps b{background:var(--yellow);border-radius:6px;padding:1px 6px;margin-right:5px;font-size:11px;}
+.url-box{
+  word-break:break-all;background:#FAF8F3;border-radius:12px;padding:12px;
+  font-size:11.5px;color:var(--ink2);line-height:1.6;border:1px solid var(--line);
+}
+.btn-row{display:flex;gap:8px;margin-bottom:14px;}
+.btn-row .btn{flex:1;}
+
+/* ================= 위치(GPS) 확인 설정 ================= */
+.switch-row{display:flex;align-items:center;gap:12px;padding:12px;background:#FAF8F3;border-radius:14px;}
+.switch-row .switch{position:relative;flex:0 0 52px;width:52px;height:30px;display:block;}
+.switch-row .switch input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;z-index:2;cursor:pointer;}
+.switch-row .switch i{position:absolute;inset:0;background:#DCD7C8;border-radius:999px;transition:background .18s;display:block;}
+.switch-row .switch i::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.18);transition:transform .18s;}
+.switch-row .switch input:checked + i{background:var(--yellow);}
+.switch-row .switch input:checked + i::after{transform:translateX(22px);}
+.switch-row .switch-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.switch-row .switch-text b{font-size:13.5px;font-weight:800;letter-spacing:-.2px;}
+.switch-row .switch-text span{font-size:11.5px;color:var(--gray);line-height:1.5;}
+
+/* ================= 하단 시트 ================= */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(20,18,14,.42);z-index:40;animation:fade .18s ease;}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:460px;margin:0 auto;
+  background:#fff;border-radius:26px 26px 0 0;max-height:86vh;display:flex;flex-direction:column;
+  animation:up .22s cubic-bezier(.2,.8,.3,1);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.sheet-grab{width:42px;height:4px;background:#E3DFD2;border-radius:2px;margin:10px auto 0;}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 20px 10px;gap:10px;}
+.sheet-date{font-size:19px;font-weight:900;letter-spacing:-.6px;}
+.sheet-sub{font-size:12.5px;color:var(--gray);margin-top:4px;font-weight:700;}
+.sheet-close{border:0;background:#F3F0E6;width:32px;height:32px;border-radius:50%;font-size:15px;color:var(--ink2);}
+.sheet-body{overflow-y:auto;padding:4px 20px 22px;-webkit-overflow-scrolling:touch;}
+.rec-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line);}
+.rec-row .nm{font-weight:800;font-size:14.5px;}
+.rec-row .tm{font-size:12.5px;color:var(--gray);margin-top:3px;font-variant-numeric:tabular-nums;}
+.rec-row .du{margin-left:auto;font-size:13px;font-weight:800;color:var(--ink2);font-variant-numeric:tabular-nums;}
+.rec-row .du.na{color:var(--gray2);}
+.edit-box{background:#FAF8F3;border-radius:var(--r-md);padding:15px;margin-top:16px;}
+.edit-box .card-title{margin-bottom:10px;}
+.edit-times{display:flex;align-items:center;gap:8px;margin:8px 0 12px;}
+.edit-times input{flex:1;min-width:0;}
+.edit-times span{color:var(--gray);font-size:13px;font-weight:700;}
+
+/* ================= 토스트 ================= */
+.toast{
+  position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);
+  transform:translate(-50%,18px);z-index:80;
+  background:rgba(25,25,25,.94);color:#fff;font-size:13.5px;font-weight:700;line-height:1.5;
+  padding:13px 18px;border-radius:14px;max-width:min(86vw,380px);text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .18s ease, transform .18s ease;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+.toast.err{background:rgba(190,45,45,.96);}
+.toast.above-nav{bottom:calc(env(safe-area-inset-bottom,0px) + 88px);}
+
+/* ================= 인쇄 ================= */
+@media print{
+  @page{margin:12mm;}
+  body{background:#fff;}
+  body::before{display:none;}
+  body *{visibility:hidden;}
+  #qr-print, #qr-print *{visibility:visible;}
+  #qr-print{
+    position:fixed;left:0;right:0;top:8mm;width:150mm;margin:0 auto;
+    border:2px solid #FFD400;box-shadow:none;border-radius:18px;
+  }
+  #qr-print .qr-box{max-width:112mm;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+
+<!-- QR 라이브러리 (CDN이 막히면 아래 스크립트가 자동으로 QR API 이미지로 대체합니다) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* GitHub Pages: 서버(GAS) 주소 · 이 페이지 주소 · QR 토큰(주소의 ?qr=) */
+var GAS_API_URL = 'https://script.google.com/macros/s/AKfycbywbHr7tDOPgMNDsWlbTGX1_tqLmVX5MSI0qT8wasijBic_hcAVNer0bdUFzkGzriPOSQ/exec';
+
+var PAGES_BASE_URL = (function () {
+  try {
+    var base = String(window.location.origin || '') + String(window.location.pathname || '');
+    base = base.replace(/index\.html?$/i, '');
+    if (base.charAt(base.length - 1) !== '/') base += '/';
+    return base;
+  } catch (e) { return ''; }
+})();
+
+window.__QR_TOKEN__ = (function () {
+  try {
+    var q = String((window.location && window.location.search) || '');
+    var m = /[?&](?:qr|token)=([^&]*)/.exec(q);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+  } catch (e) { return ''; }
+})();
+
+/* ============================================================
+   상태
+   ============================================================ */
+var S = {
+  qr: (typeof window.__QR_TOKEN__ === 'string' ? window.__QR_TOKEN__ : ''),
+  view: 'loading',
+  boot: null,
+  me: null,
+  session: storeGet('mgc_session'),
+  adminToken: storeGet('mgc_admin'),
+  selectedEmp: '',
+  busy: false,
+  locating: false,
+  confirm: null,
+  joinMsg: '',
+  err: '',
+  timer: null,
+  admin: {
+    tab: 'calendar', y: 0, m: 0,
+    dash: null, loadingDash: false,
+    filter: '', dayDate: '', day: null, dayLoading: false,
+    qr: null, loadingQr: false,
+    lastPin: null, storeMsg: '', pwMsg: '',
+    gps: null, loadingGps: false, gpsMsg: ''
+  }
+};
+
+/* ============================================================
+   작은 도우미
+   ============================================================ */
+function $(id) { return document.getElementById(id); }
+function esc(v) {
+  return String(v === null || v === undefined ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function p2(n) { return (n < 10 ? '0' : '') + n; }
+function mtext(min) {
+  var m = Math.max(0, Math.round(Number(min) || 0));
+  var h = Math.floor(m / 60), r = m % 60;
+  if (h === 0) return r + '분';
+  if (r === 0) return h + '시간';
+  return h + '시간 ' + r + '분';
+}
+function storeGet(key) {
+  try {
+    var v = localStorage.getItem(key);
+    if (v) return v;
+    return sessionStorage.getItem(key) || '';
+  } catch (e) { return ''; }
+}
+function storeSet(key, val, remember) {
+  try {
+    if (remember) { localStorage.setItem(key, val); sessionStorage.removeItem(key); }
+    else { sessionStorage.setItem(key, val); localStorage.removeItem(key); }
+  } catch (e) { /* 사파리 프라이빗 모드 등 */ }
+}
+function storeDel(key) {
+  try { localStorage.removeItem(key); sessionStorage.removeItem(key); } catch (e) { }
+}
+function buzz() { try { if (navigator.vibrate) navigator.vibrate(28); } catch (e) { } }
+
+/* 휴대폰 위치(GPS) 한 번 받아오기 — 실패하면 이유를 담은 Error로 거절 */
+function getPosition() {
+  return new Promise(function (resolve, reject) {
+    var geo = (typeof navigator !== 'undefined') ? navigator.geolocation : null;
+    if (!geo || !geo.getCurrentPosition) {
+      reject(new Error('이 브라우저에서는 위치를 확인할 수 없어요. 아이폰은 사파리로 열어 주세요.'));
+      return;
+    }
+    var done = false;
+    var timer = setTimeout(function () {
+      if (done) return;
+      done = true;
+      reject(new Error('위치 확인 시간이 초과됐어요. 사파리/브라우저 위치 권한을 허용한 뒤 다시 시도해 주세요.'));
+    }, 12000);
+    geo.getCurrentPosition(function (pos) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      var c = (pos && pos.coords) || {};
+      resolve({ lat: Number(c.latitude), lng: Number(c.longitude) });
+    }, function (err) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      var code = err ? err.code : 0;
+      var detail = String((err && err.message) || '');
+      var msg;
+      if (/permissions?[ -]?policy|feature policy|blocked/i.test(detail)) {
+        // 구글 앱스 스크립트 웹앱은 아이프레임 안에서 열려서, 브라우저가 위치를 막는 경우가 있습니다.
+        msg = '이 브라우저가 위치 기능을 막고 있어요. 아이폰은 사파리로 열어 보시고, 계속 안 되면 사장님께 알려 주세요.';
+      } else if (code === 1) msg = '위치 권한이 꺼져 있어요. 사파리/브라우저 위치 권한을 허용해 주세요.';
+      else if (code === 3) msg = '위치 확인 시간이 초과됐어요. 사파리/브라우저 위치 권한을 허용한 뒤 다시 시도해 주세요.';
+      else msg = '위치를 확인하지 못했어요. 사파리/브라우저 위치 권한을 허용한 뒤 다시 시도해 주세요.';
+      reject(new Error(msg));
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  });
+}
+
+var toastTimer = null;
+function toastClasses(isErr, show) {
+  return 'toast' + (show ? ' show' : '') + (isErr ? ' err' : '') + (S && S.view === 'admin' ? ' above-nav' : '');
+}
+function toast(msg, isErr) {
+  var el = $('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = toastClasses(isErr, true);
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.className = toastClasses(isErr, false); }, 3000);
+}
+
+/* ============================================================
+   서버 호출 (google.script.run)
+   ============================================================ */
+/* google.script.run 이 있으면(Apps Script 웹앱) 그대로 쓰고,
+   없으면(GitHub Pages) GAS_API_URL 로 JSON POST 를 보냅니다.
+   CORS 사전요청(preflight)이 생기지 않도록 Content-Type 은 text/plain. */
+var HAS_GAS_RUNNER = !!(typeof google !== 'undefined' && google.script && google.script.run);
+var NET_ERROR_TEXT = '서버에 연결하지 못했어요. 인터넷 연결을 확인하고, 계속 안 되면 매장 QR을 다시 찍어 주세요.';
+
+function gasPost(fn, args) {
+  var body = JSON.stringify({ fn: fn, args: args || [] });
+  var pending;
+  try {
+    pending = fetch(GAS_API_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body
+    });
+  } catch (e) {
+    return Promise.reject(new Error(NET_ERROR_TEXT));
+  }
+  return pending.then(function (res) {
+    if (res && res.ok === false) {
+      throw new Error('서버에 연결하지 못했어요. (HTTP ' + res.status + ') 잠시 후 다시 시도해 주세요.');
+    }
+    return res.text();
+  }, function () {
+    throw new Error(NET_ERROR_TEXT);      // 네트워크·CORS 차단
+  }).then(function (text) {
+    var data = null;
+    try { data = JSON.parse(text); } catch (e) {
+      throw new Error('서버 응답을 읽지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+    if (!data || typeof data !== 'object') throw new Error('서버 응답이 없습니다. 잠시 후 다시 시도해 주세요.');
+    if (data.ok === false) throw new Error(data.message || data.error || '오류가 발생했습니다.');
+    return data;
+  });
+}
+
+function callApi(fn, args) {
+  args = args || [];
+  if (!HAS_GAS_RUNNER) return gasPost(fn, args);
+  return new Promise(function (res, rej) {
+    try {
+      var runner = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+      if (args.length === 0) runner[fn]();
+      else if (args.length === 1) runner[fn](args[0]);
+      else if (args.length === 2) runner[fn](args[0], args[1]);
+      else if (args.length === 3) runner[fn](args[0], args[1], args[2]);
+      else if (args.length === 4) runner[fn](args[0], args[1], args[2], args[3]);
+      else runner[fn](args[0], args[1], args[2], args[3], args[4]);
+    } catch (e) { rej(e); }
+  });
+}
+function srv0(fn) { return callApi(fn, []); }
+function srv1(fn, a) { return callApi(fn, [a]); }
+function srv2(fn, a, b) { return callApi(fn, [a, b]); }
+function srv3(fn, a, b, c) { return callApi(fn, [a, b, c]); }
+function srv4(fn, a, b, c, d) { return callApi(fn, [a, b, c, d]); }
+function srv5(fn, a, b, c, d, e5) { return callApi(fn, [a, b, c, d, e5]); }
+
+function unwrap(res) {
+  if (!res) throw new Error('서버 응답이 없습니다. 잠시 후 다시 시도해 주세요.');
+  if (res.ok) return res.data;
+  throw new Error(res.message || '오류가 발생했습니다.');
+}
+function fail(e) {
+  var msg = (e && e.message) ? String(e.message) : '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+  if (msg.indexOf('관리자 로그인이 만료') >= 0) {
+    storeDel('mgc_admin'); S.adminToken = ''; S.admin.dash = null;
+    S.view = 'admin-login'; render();
+  } else if (msg.indexOf('로그인이 만료') >= 0) {
+    storeDel('mgc_session'); S.session = ''; S.me = null;
+    S.view = 'login'; render();
+  }
+  toast(msg, true);
+}
+
+/* 관리자 QR 화면: 서버가 알려주는 웹앱 주소 대신 이 페이지 주소로 QR 을 만듭니다.
+   (직원이 QR 을 찍으면 GitHub Pages 가 열려 홈 화면 아이콘·GPS 가 정상 동작) */
+function pagesQrUrl(token) {
+  return PAGES_BASE_URL + '?qr=' + encodeURIComponent(String(token || ''));
+}
+function adaptQrInfo(d) {
+  if (!d || HAS_GAS_RUNNER || !PAGES_BASE_URL) return d;
+  d.url = PAGES_BASE_URL;
+  d.qrUrl = pagesQrUrl(d.token);
+  return d;
+}
+
+function gasFallbackUrl() {
+  var t = S.qr || storeGet('mgc_qr') || '';
+  return GAS_API_URL + (t ? '?qr=' + encodeURIComponent(t) : '');
+}
+
+/* ============================================================
+   시작
+   ============================================================ */
+function boot() {
+  S.view = 'loading';
+  render();
+  // QR 링크(?qr=...)가 없을 때(홈 화면 아이콘으로 다시 열었을 때)는 마지막으로 확인된 매장 토큰을 씁니다.
+  var token = S.qr || storeGet('mgc_qr');
+  srv1('bootstrap', token).then(function (r) {
+    var d = unwrap(r);
+    S.boot = d;
+    if (d.qrValid && token) { S.qr = token; storeSet('mgc_qr', token, true); }
+    var parts = String(d.today || '').split('-');
+    S.admin.y = Number(parts[0]) || new Date().getFullYear();
+    S.admin.m = Number(parts[1]) || (new Date().getMonth() + 1);
+    if (S.session) {
+      return loadMe(true);
+    }
+    S.view = 'login';
+    render();
+  }).catch(function (e) {
+    S.err = (e && e.message) ? e.message : '앱을 불러오지 못했습니다.';
+    S.view = 'error';
+    render();
+  });
+}
+
+function loadMe(silentFail) {
+  return srv1('getMyToday', S.session).then(function (r) {
+    var d = unwrap(r);
+    S.me = d;
+    S.view = 'employee';
+    render();
+  }).catch(function (e) {
+    var msg = (e && e.message) ? String(e.message) : '';
+    var dead = msg.indexOf('로그인이 만료') >= 0 || msg.indexOf('사용할 수 없는 계정') >= 0;
+    if (dead) {
+      // 세션이 정말 끝난 경우에만 조용히 로그아웃한다 (일시적 오류로 로그아웃되지 않도록)
+      storeDel('mgc_session'); S.session = ''; S.me = null;
+      S.view = 'login';
+      render();
+      if (!silentFail) toast(msg, true);
+      return;
+    }
+    if (!S.me) { S.view = 'login'; render(); }
+    fail(e);
+  });
+}
+
+/* ============================================================
+   화면 그리기
+   ============================================================ */
+function render() {
+  var html = '';
+  if (S.view === 'loading') html = viewLoading();
+  else if (S.view === 'error') html = viewError();
+  else if (S.view === 'login') html = viewLogin();
+  else if (S.view === 'join') html = viewJoin();
+  else if (S.view === 'employee') html = viewEmployee();
+  else if (S.view === 'admin-login') html = viewAdminLogin();
+  else if (S.view === 'admin') html = viewAdmin();
+  else html = viewLoading();
+  var app = $('app');
+  if (app) app.innerHTML = html;
+  afterRender();
+}
+
+function afterRender() {
+  if (S.view === 'employee') startClock(); else stopClock();
+  if (S.view === 'admin') {
+    ensureAdminData();
+    if (S.admin.tab === 'qr' && S.admin.qr) drawQr();
+  }
+}
+
+/* ---------- 공통 조각 ---------- */
+function headerHtml(rightBtn) {
+  var store = S.boot ? S.boot.storeName : '신용산역 메가MGC커피';
+  return '<header class="top">' +
+    '<div class="brand"><span class="logo">M</span>' +
+    '<div class="brand-text"><b>MEGA MGC COFFEE</b><span>' + esc(store) + '</span></div></div>' +
+    (rightBtn || '') +
+    '</header>';
+}
+
+function qrWarnHtml() {
+  if (!S.boot || S.boot.qrValid) return '';
+  return '<div class="warn"><b>매장 QR로 접속하지 않았어요</b>' +
+    '<span>매장에 붙은 QR을 휴대폰 카메라로 다시 찍어 주세요. QR 없이는 출근·퇴근이 기록되지 않습니다.</span></div>';
+}
+
+/* ---------- 로딩 / 오류 ---------- */
+function viewLoading() {
+  return '<div class="wrap"><div class="loading"><div class="spinner"></div><p>불러오는 중…</p></div></div>';
+}
+function viewError() {
+  return '<div class="wrap">' + headerHtml('') +
+    '<div class="card" style="text-align:center;padding:28px 20px;">' +
+    '<div style="font-size:34px;margin-bottom:10px;">😥</div>' +
+    '<div style="font-weight:800;font-size:16px;margin-bottom:8px;">앱을 열지 못했어요</div>' +
+    '<p class="muted">' + esc(S.err) + '</p>' +
+    '<button class="btn primary mt16" data-action="reload">다시 시도</button>' +
+    '<p class="muted small mt16">계속 안 되면 <a href="' + esc(gasFallbackUrl()) + '" target="_top">웹앱으로 열기</a> 를 눌러 주세요.</p>' +
+    '</div></div>';
+}
+
+/* ---------- 직원 로그인 ---------- */
+function viewLogin() {
+  var emps = (S.boot && S.boot.employees) || [];
+  var chips = '';
+  for (var i = 0; i < emps.length; i++) {
+    var on = S.selectedEmp === emps[i].id ? ' on' : '';
+    chips += '<button class="chip' + on + '" data-action="select-emp" data-id="' + esc(emps[i].id) + '">' + esc(emps[i].name) + '</button>';
+  }
+  if (!chips) {
+    chips = '<div class="empty" style="grid-column:1/-1;">아직 등록된 직원이 없어요.<br>관리자 화면에서 직원을 먼저 추가해 주세요.</div>';
+  }
+  var foot = emps.length
+    ? '<button class="link-btn" data-action="goto-join">처음이신가요? 가입 신청</button>'
+    : '<button class="link-btn" data-action="goto-admin-login">관리자로 시작하기</button>';
+
+  return '<div class="wrap">' + headerHtml('<button class="ghost-btn" data-action="goto-admin">관리자</button>') +
+    qrWarnHtml() +
+    '<div class="login-hero"><h1>출퇴근 기록</h1>' +
+    '<p><b>' + esc(S.boot ? S.boot.today.replace(/-/g, '.') : '') + ' ' + esc(S.boot ? S.boot.weekday : '') + '요일</b><br>이름을 선택하고 PIN 4자리를 입력하세요</p></div>' +
+    '<div class="card">' +
+    '<div class="emp-grid">' + chips + '</div>' +
+    '<label class="field-label">PIN 4자리</label>' +
+    '<input id="pin-input" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="••••">' +
+    '<label class="checkbox"><input type="checkbox" id="remember" checked> 이 기기에서 로그인 기억하기</label>' +
+    '<button class="btn primary" data-action="login">로그인</button>' +
+    foot +
+    '</div>' +
+    '<p class="footnote">매장 QR을 찍고 들어오면 ① 이름 선택 ② PIN 입력 ③ 출근·퇴근 버튼 순서로 기록할 수 있어요.</p>' +
+    '</div>';
+}
+
+/* ---------- 가입 신청 ---------- */
+function viewJoin() {
+  return '<div class="wrap">' + headerHtml('<button class="ghost-btn" data-action="back-login">돌아가기</button>') +
+    '<div class="login-hero" style="padding-top:6px;"><h1>가입 신청</h1>' +
+    '<p>관리자가 승인하면 그때부터 출퇴근을 기록할 수 있어요.</p></div>' +
+    '<div class="card">' +
+    '<div class="field"><label class="field-label">이름</label>' +
+    '<input id="join-name" type="text" maxlength="12" placeholder="예) 김유하" autocomplete="off"></div>' +
+    '<div class="field"><label class="field-label">연락처 뒤 4자리</label>' +
+    '<input id="join-phone" type="tel" inputmode="numeric" maxlength="4" placeholder="예) 8281" autocomplete="off"></div>' +
+    '<div class="row-2">' +
+    '<div class="field"><label class="field-label">PIN 4자리</label>' +
+    '<input id="join-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off"></div>' +
+    '<div class="field"><label class="field-label">PIN 확인</label>' +
+    '<input id="join-pin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off"></div>' +
+    '</div>' +
+    '<p class="muted small" style="margin-bottom:14px;">PIN은 출근·퇴근할 때 본인 확인용 숫자 4자리입니다. 잊어버리면 관리자가 다시 발급해 줄 수 있어요.</p>' +
+    '<button class="btn dark" data-action="join-submit">가입 신청 보내기</button>' +
+    '<button class="link-btn" data-action="back-login">직원 화면으로 돌아가기</button>' +
+    '</div></div>';
+}
+
+/* ---------- 직원 메인 ---------- */
+function employeeStatus(r) {
+  if (!r || !r.inTime) {
+    return { cls: '', badge: '출근 전', main: '아직 출근 전이에요', sub: '매장에 도착하면 아래 <b>출근하기</b>를 눌러 주세요.' };
+  }
+  if (!r.outTime) {
+    if (elapsedMinutes(r.inTime) < 1) {
+      return { cls: 'working', badge: '근무 중', main: r.inTime + ' 출근', sub: '지금 막 출근했어요. 오늘도 화이팅!' };
+    }
+    return { cls: 'working', badge: '근무 중', main: r.inTime + ' 출근', sub: '<span id="work-elapsed">' + elapsedText(r.inTime) + '</span>째 근무 중' };
+  }
+  return { cls: 'done', badge: '근무 완료', main: r.inTime + ' ~ ' + r.outTime, sub: '총 근무 <b>' + esc(r.minutesText) + '</b>' };
+}
+
+function viewEmployee() {
+  var d = S.me;
+  if (!d) return viewLoading();
+  var r = d.record;
+  var st = employeeStatus(r);
+  var locating = !!S.locating;
+  var action = '';
+  if (!r || !r.inTime) {
+    action = '<button class="big-btn primary" data-action="checkin"' + (locating ? ' disabled' : '') + '>' +
+      (locating ? '<span class="ico">◎</span>위치 확인 중...' : '<span class="ico">●</span>출근하기') + '</button>';
+  } else if (!r.outTime) {
+    action = '<button class="big-btn dark" data-action="checkout"' + (locating ? ' disabled' : '') + '>' +
+      (locating ? '<span class="ico">◎</span>위치 확인 중...' : '<span class="ico">■</span>퇴근하기') + '</button>';
+  } else {
+    action = '<button class="big-btn done" disabled>오늘 근무 완료</button>';
+  }
+  var gpsNote = (S.boot && S.boot.gpsEnabled)
+    ? '<p class="muted small" style="text-align:center;margin:-6px 0 16px;">출·퇴근할 때 매장 근처인지 위치를 확인해요.</p>'
+    : '';
+  var inT = (r && r.inTime) ? r.inTime : '--:--';
+  var outT = (r && r.outTime) ? r.outTime : '--:--';
+  var workT = (r && r.outTime) ? r.minutesText : '--';
+
+  return '<div class="wrap">' + headerHtml('<button class="ghost-btn" data-action="goto-admin">관리자</button>') +
+    qrWarnHtml() +
+    '<div class="clock-card">' +
+    '<div class="clock-date">' + Number(d.date.slice(0, 4)) + '년 ' + Number(d.date.slice(5, 7)) + '월 ' + Number(d.date.slice(8, 10)) + '일 ' + esc(d.weekday) + '요일</div>' +
+    '<div class="clock-time"><span id="clock-hm">--:--</span><span class="sec" id="clock-sec">:--</span></div>' +
+    '</div>' +
+    '<div class="status-card ' + st.cls + '">' +
+    '<span class="status-badge">' + st.badge + '</span>' +
+    '<div class="status-main">' + st.main + '</div>' +
+    '<div class="status-sub">' + st.sub + '</div>' +
+    '</div>' +
+    action + gpsNote +
+    '<div class="card tight">' +
+    '<div class="card-title">오늘 기록</div>' +
+    '<div class="rec-grid">' +
+    '<div class="rec-item"><div class="rec-label">출근</div><div class="rec-value' + (r && r.inTime ? '' : ' dim') + '">' + inT + '</div></div>' +
+    '<div class="rec-item"><div class="rec-label">퇴근</div><div class="rec-value' + (r && r.outTime ? '' : ' dim') + '">' + outT + '</div></div>' +
+    '<div class="rec-item"><div class="rec-label">근무</div><div class="rec-value' + (r && r.outTime ? '' : ' dim') + '" style="font-size:15px;line-height:1.35;">' + workT + '</div></div>' +
+    '</div></div>' +
+    '<div class="card tight">' +
+    '<div class="card-title">이번 달 <span class="count">' + Number(d.month.ym.slice(5, 7)) + '월</span></div>' +
+    '<div class="month-line"><div class="month-big">' + d.month.days + '일 <small>근무</small></div>' +
+    '<div class="muted" style="font-weight:800;color:#3D3B36;">' + esc(d.month.text) + '</div></div>' +
+    '</div>' +
+    '<div class="me-foot"><span class="who">' + esc(d.emp.name) + ' 님</span>' +
+    '<button class="link-btn" data-action="logout-emp">로그아웃</button></div>' +
+    '</div>';
+}
+
+/* ---------- 관리자 로그인 ---------- */
+function viewAdminLogin() {
+  return '<div class="wrap">' + headerHtml('<button class="ghost-btn" data-action="back-login">직원 화면</button>') +
+    '<div class="login-hero" style="padding-top:6px;"><h1>관리자</h1>' +
+    '<p>매장 관리자만 들어갈 수 있어요.</p></div>' +
+    '<div class="card">' +
+    '<label class="field-label">관리자 비밀번호</label>' +
+    '<input id="admin-pw" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="••••" style="letter-spacing:6px;font-size:22px;">' +
+    '<div class="mt16"><button class="btn dark" data-action="admin-login">관리자로 들어가기</button></div>' +
+    '<p class="muted small mt12">처음 설치하셨다면 비밀번호는 <b>1234</b>입니다. 들어가서 바로 바꿔 주세요.</p>' +
+    '</div></div>';
+}
+
+/* ---------- 관리자 메인 ---------- */
+function adminHeader() {
+  var store = (S.admin.dash && S.admin.dash.storeName) || (S.boot && S.boot.storeName) || '매장';
+  return '<div class="admin-head"><div><div class="who">' + esc(store) + '</div><h2>' + adminTitle() + '</h2></div>' +
+    '<button class="ghost-btn" data-action="admin-logout">로그아웃</button></div>';
+}
+function adminTitle() {
+  var t = S.admin.tab;
+  if (t === 'calendar') return '출퇴근 달력';
+  if (t === 'staff') return '직원 관리';
+  if (t === 'qr') return '매장 QR';
+  return '설정';
+}
+function adminNav() {
+  var tabs = [
+    { k: 'calendar', label: '달력', icon: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/>' },
+    { k: 'staff', label: '직원', icon: '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-5.6 6.5-5.6s6.5 2 6.5 5.6"/><path d="M17 8.5a3 3 0 0 1 0 5.6M18.5 20c0-2.4-.7-4-2-5"/>' },
+    { k: 'qr', label: '매장 QR', icon: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20v.01M20 20v.01"/>' },
+    { k: 'settings', label: '설정', icon: '<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 13.7H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10.4 3V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>' }
+  ];
+  var out = '<nav class="nav">';
+  for (var i = 0; i < tabs.length; i++) {
+    var t = tabs[i];
+    out += '<button class="nav-item' + (S.admin.tab === t.k ? ' on' : '') + '" data-action="admin-tab" data-tab="' + t.k + '">' +
+      '<svg viewBox="0 0 24 24">' + t.icon + '</svg><span>' + t.label + '</span></button>';
+  }
+  return out + '</nav>';
+}
+function viewAdmin() {
+  var body = '';
+  if (S.admin.tab === 'calendar') body = adminCalendar();
+  else if (S.admin.tab === 'staff') body = adminStaff();
+  else if (S.admin.tab === 'qr') body = adminQr();
+  else body = adminSettings();
+  return '<div class="wrap admin">' + adminHeader() + body + adminNav() +
+    (S.admin.dayDate ? daySheet() : '') + '</div>';
+}
+
+/* ---------- 관리자: 달력 ---------- */
+function adminCalendar() {
+  var d = S.admin.dash;
+  var y = S.admin.y, m = S.admin.m;
+  var head = '<div class="month-nav">' +
+    '<button class="nav-btn" data-action="month-prev">‹</button>' +
+    '<div class="label">' + y + '년 ' + m + '월<span>' + (d ? d.workDayCount + '일 기록' : '') + '</span></div>' +
+    '<button class="nav-btn" data-action="month-next">›</button></div>';
+
+  if (!d) {
+    return head + '<div class="card"><div class="empty">달력을 불러오는 중…</div></div>';
+  }
+
+  var labels = ['일', '월', '화', '수', '목', '금', '토'];
+  var week = '';
+  for (var i = 0; i < 7; i++) week += '<span>' + labels[i] + '</span>';
+
+  var first = new Date(y, m - 1, 1).getDay();
+  var last = new Date(y, m, 0).getDate();
+  var cells = '';
+  for (i = 0; i < first; i++) cells += '<span class="cal-cell empty"></span>';
+  for (var day = 1; day <= last; day++) {
+    var key = y + '-' + p2(m) + '-' + p2(day);
+    var info = d.days[key];
+    var count = 0, mins = 0;
+    if (info) {
+      if (S.admin.filter) {
+        var per = info.emps ? info.emps[S.admin.filter] : undefined;
+        count = (per === undefined) ? 0 : 1;
+        mins = per || 0;
+      } else {
+        count = info.count || 0;
+        mins = info.minutes || 0;
+      }
+    }
+    var dow = (first + day - 1) % 7;
+    var cls = 'cal-cell' + (count ? ' has' : '') + (key === d.today ? ' today' : '') +
+      (dow === 0 ? ' sun' : (dow === 6 ? ' sat' : ''));
+    var badge = '';
+    if (count) {
+      if (S.admin.filter) badge = mins ? (Math.round(mins / 60 * 10) / 10) + 'h' : '근무';
+      else badge = count + '명';
+    }
+    cells += '<button class="' + cls + '" data-action="open-day" data-date="' + key + '">' +
+      '<span class="cal-d">' + day + '</span>' +
+      (badge ? '<span class="cal-badge">' + badge + '</span>' : '') +
+      '</button>';
+  }
+
+  // 직원 필터
+  var opts = '<option value="">전체 직원</option>';
+  for (i = 0; i < d.staff.length; i++) {
+    opts += '<option value="' + esc(d.staff[i].id) + '"' + (S.admin.filter === d.staff[i].id ? ' selected' : '') + '>' +
+      esc(d.staff[i].name) + '</option>';
+  }
+
+  var totals = '';
+  if (d.totals.length) {
+    var max = 1;
+    for (i = 0; i < d.totals.length; i++) max = Math.max(max, d.totals[i].minutes);
+    for (i = 0; i < d.totals.length; i++) {
+      var t = d.totals[i];
+      totals += '<div style="padding:10px 0;border-bottom:1px solid var(--line);">' +
+        '<div class="sum-row" style="border:0;padding:0;"><span class="name">' + esc(t.name) + '<span class="days">' + t.days + '일</span></span>' +
+        '<span class="val">' + esc(t.minutesText) + '</span></div>' +
+        '<div class="bar"><i style="width:' + Math.max(4, Math.round(t.minutes / max * 100)) + '%"></i></div>' +
+        '</div>';
+    }
+  } else {
+    totals = '<div class="empty">이번 달 기록이 아직 없어요.</div>';
+  }
+
+  var filtered = null;
+  if (S.admin.filter) {
+    for (i = 0; i < d.staff.length; i++) if (d.staff[i].id === S.admin.filter) filtered = d.staff[i];
+  }
+
+  return head +
+    '<div class="field" style="margin-bottom:12px;"><select id="emp-filter" data-change="filter">' + opts + '</select></div>' +
+    '<div class="card cal"><div class="cal-week">' + week + '</div><div class="cal-grid">' + cells + '</div></div>' +
+    '<div class="card tight"><div class="card-title">이번 달 합계' + (filtered ? ' · ' + esc(filtered.name) : '') + '</div>' +
+    '<div class="month-total">' +
+    '<div class="box"><b>' + d.workDayCount + '일</b><span>영업일 기록</span></div>' +
+    '<div class="box"><b>' + esc(d.totalText) + '</b><span>전체 근무시간</span></div>' +
+    '</div></div>' +
+    '<div class="card"><div class="card-title">직원별 근무시간<span class="count">' + y + '년 ' + m + '월</span></div>' + totals + '</div>';
+}
+
+/* ---------- 관리자: 직원 ---------- */
+function adminStaff() {
+  var d = S.admin.dash;
+  if (!d) return '<div class="card"><div class="empty">불러오는 중…</div></div>';
+
+  var pinBox = '';
+  if (S.admin.lastPin) {
+    pinBox = '<div class="pin-reveal"><div><span>' + esc(S.admin.lastPin.name) + ' 님 PIN</span><br><b>' + esc(S.admin.lastPin.pin) + '</b></div>' +
+      '<button data-action="clear-pin">닫기</button></div>';
+  }
+
+  var pending = '';
+  if (!d.pending.length) {
+    pending = '<div class="empty">승인 대기 중인 신청이 없어요.</div>';
+  } else {
+    for (var i = 0; i < d.pending.length; i++) {
+      var p = d.pending[i];
+      pending += '<div class="staff-row"><div><div class="nm">' + esc(p.name) + '</div>' +
+        '<div class="meta">연락처 뒤 ' + esc(p.phone4 || '----') + ' · ' + esc(p.created) + '</div></div>' +
+        '<div class="side"><button class="mini-btn danger" data-action="reject" data-id="' + esc(p.id) + '">거절</button>' +
+        '<button class="mini-btn solid" data-action="approve" data-id="' + esc(p.id) + '">승인</button></div></div>';
+    }
+  }
+
+  var rows = '';
+  if (!d.staff.length) {
+    rows = '<div class="empty">등록된 직원이 없어요.</div>';
+  } else {
+    for (i = 0; i < d.staff.length; i++) {
+      var s2 = d.staff[i];
+      var active = s2.status === '활성';
+      var confirmKey = 'inactive:' + s2.id;
+      var offLabel = active ? '퇴사 처리' : '복직';
+      if (S.confirm === confirmKey) offLabel = '정말 퇴사 처리?';
+      rows += '<div class="staff-row"><div><div class="nm">' + esc(s2.name) +
+        ' <span class="pill ' + (active ? 'on' : 'off') + '">' + (active ? '재직' : '비활성') + '</span></div>' +
+        '<div class="meta">' + (s2.approved ? '승인 ' + esc(s2.approved.slice(0, 10)) : '등록 ' + esc(s2.created.slice(0, 10))) + '</div></div>' +
+        '<div class="side">' +
+        '<button class="mini-btn" data-action="reset-pin" data-id="' + esc(s2.id) + '">PIN 재발급</button>' +
+        '<button class="mini-btn ' + (active ? 'danger' : '') + '" data-action="toggle-active" data-id="' + esc(s2.id) + '" data-active="' + (active ? '1' : '0') + '">' + offLabel + '</button>' +
+        '</div></div>';
+    }
+  }
+
+  return pinBox +
+    '<div class="card"><div class="card-title">승인 대기<span class="count">' + d.pending.length + '명</span></div>' + pending + '</div>' +
+    '<div class="card"><div class="card-title">직원<span class="count">' + d.staff.length + '명</span></div>' + rows + '</div>' +
+    '<div class="card"><div class="card-title">직원 직접 추가</div>' +
+    '<div class="field"><input id="add-name" type="text" maxlength="12" placeholder="이름 (예) 김유하" autocomplete="off"></div>' +
+    '<div class="row-2">' +
+    '<div class="field"><input id="add-phone" type="tel" inputmode="numeric" maxlength="4" placeholder="뒤4 (선택)" autocomplete="off"></div>' +
+    '<div class="field"><input id="add-pin" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN (자동)" autocomplete="off"></div>' +
+    '</div>' +
+    '<button class="btn primary" data-action="add-staff">직원 추가</button>' +
+    '<p class="muted small mt12">추가하면 바로 출퇴근을 찍을 수 있어요. 직원에게 이름과 PIN을 알려 주세요.</p>' +
+    '</div>';
+}
+
+/* ---------- 관리자: QR ---------- */
+function adminQr() {
+  if (!S.admin.qr) {
+    return '<div class="card"><div class="empty">매장 QR을 준비하는 중…</div></div>';
+  }
+  var q = S.admin.qr;
+  var confirmKey = 'regen';
+  return '<div class="qr-card" id="qr-print">' +
+    '<div class="qr-brand">MEGA MGC COFFEE</div>' +
+    '<div class="qr-store">' + esc(q.storeName || '신용산역 메가MGC커피 지하상가점') + '</div>' +
+    '<div class="qr-box" id="qr-box"><div class="qr-wait">QR 준비 중…</div></div>' +
+    '<div class="qr-steps">' +
+    '<div><b>1</b> 휴대폰 카메라로 QR 촬영</div>' +
+    '<div><b>2</b> 본인 이름 선택 → PIN 4자리</div>' +
+    '<div><b>3</b> 출근할 때 [출근하기], 퇴근할 때 [퇴근하기]</div>' +
+    '</div></div>' +
+    '<div class="btn-row"><button class="btn line" data-action="print-qr">인쇄하기</button>' +
+    '<button class="btn line" data-action="copy-url">주소 복사</button></div>' +
+    '<div class="card"><div class="card-title">QR 주소</div>' +
+    '<div class="url-box" id="qr-url">' + esc(q.qrUrl) + '</div>' +
+    '<p class="muted small mt12">직원에게 이 주소를 카톡으로 보내도 같은 효과예요. 아이폰은 사파리 공유 버튼 → <b>홈 화면에 추가</b>를 누르면 앱처럼 쓸 수 있습니다.</p></div>' +
+    '<div class="notice"><b>QR을 새로 발급하면</b>기존에 인쇄해 붙인 QR은 즉시 사용할 수 없게 됩니다. 직원들이 다시 찍어야 하니 신중히 눌러 주세요.</div>' +
+    '<button class="link-btn danger" data-action="regen-token">' + (S.confirm === confirmKey ? '정말 재발급할까요? 한 번 더 누르세요' : 'QR 토큰 재발급 (기존 QR 사용 중지)') + '</button>' +
+    (q.regeneratedAt ? '<p class="footnote">마지막 발급 ' + esc(q.regeneratedAt) + '</p>' : '');
+}
+
+/* ---------- 관리자: 설정 ---------- */
+function adminSettings() {
+  var d = S.admin.dash;
+  var store = (d && d.storeName) || (S.boot && S.boot.storeName) || '';
+  var g = S.admin.gps;
+  var gpsCard;
+  if (!g) {
+    gpsCard = '<div class="card"><div class="card-title">위치(GPS) 확인</div>' +
+      '<div class="empty">설정을 불러오는 중…</div></div>';
+  } else {
+    gpsCard = '<div class="card"><div class="card-title">위치(GPS) 확인<span class="count">' +
+      (g.gpsEnabled ? '사용 중' : '꺼짐') + '</span></div>' +
+      '<label class="switch-row"><span class="switch"><input type="checkbox" id="gps-enabled"' +
+      (g.gpsEnabled ? ' checked' : '') + '><i></i></span>' +
+      '<span class="switch-text"><b>GPS 제한 사용</b><span>켜면 매장 근처에서만 출·퇴근할 수 있어요.</span></span></label>' +
+      '<div class="field mt12"><label class="field-label">허용 반경 (m)</label>' +
+      '<input id="gps-radius" type="number" inputmode="numeric" min="50" max="1000" step="10" value="' + esc(g.radius) + '"></div>' +
+      '<p class="muted small" style="margin:-4px 0 12px;">지하상가는 위치 오차가 커서 <b>250m</b>를 권장해요. (50~1000m)</p>' +
+      '<div class="row-2">' +
+      '<div class="field"><label class="field-label">매장 위도</label>' +
+      '<input id="gps-lat" type="text" inputmode="decimal" autocomplete="off" value="' + esc(g.lat) + '"></div>' +
+      '<div class="field"><label class="field-label">매장 경도</label>' +
+      '<input id="gps-lng" type="text" inputmode="decimal" autocomplete="off" value="' + esc(g.lng) + '"></div>' +
+      '</div>' +
+      '<button class="btn line" data-action="fill-gps-here">현재 위치로 채우기</button>' +
+      '<div class="mt8"><button class="btn primary" data-action="save-gps">위치 설정 저장</button></div>' +
+      (S.admin.gpsMsg ? '<p class="muted small mt12">' + esc(S.admin.gpsMsg) + '</p>' : '') +
+      '<p class="muted small mt12">직원이 출·퇴근할 때 이 위치에서 반경 안에 있는지 확인합니다. 위치 값 자체는 저장하지 않아요.</p>' +
+      '</div>';
+  }
+  return '<div class="card"><div class="card-title">매장 이름</div>' +
+    '<div class="field"><input id="store-name" type="text" value="' + esc(store) + '"></div>' +
+    '<button class="btn line" data-action="save-store">저장</button>' +
+    (S.admin.storeMsg ? '<p class="muted small mt12">' + esc(S.admin.storeMsg) + '</p>' : '') +
+    '</div>' +
+    gpsCard +
+    '<div class="card"><div class="card-title">관리자 비밀번호 변경</div>' +
+    '<div class="field"><input id="pw-cur" type="password" inputmode="numeric" placeholder="현재 비밀번호" autocomplete="off"></div>' +
+    '<div class="field"><input id="pw-new" type="password" inputmode="numeric" placeholder="새 비밀번호 (4자리 이상)" autocomplete="off"></div>' +
+    '<div class="field"><input id="pw-new2" type="password" inputmode="numeric" placeholder="새 비밀번호 확인" autocomplete="off"></div>' +
+    '<button class="btn dark" data-action="change-pw">변경하기</button>' +
+    (S.admin.pwMsg ? '<p class="muted small mt12">' + esc(S.admin.pwMsg) + '</p>' : '') +
+    '</div>' +
+    '<div class="card"><div class="card-title">앱 정보</div>' +
+    '<p class="muted small">기록은 이 구글 계정의 스프레드시트에만 저장됩니다. 사진 촬영은 하지 않아요.</p>' +
+    '<p class="muted small mt8">위치를 켜 두면 출·퇴근할 때 매장 반경 안에 있는지만 확인하고, 위도·경도 같은 위치 값은 저장하지 않습니다.</p>' +
+    '<p class="muted small mt8">시트: <b>직원목록 · 출퇴근기록 · 설정</b></p>' +
+    '<button class="link-btn danger" data-action="admin-logout">관리자 로그아웃</button>' +
+    '</div>';
+}
+
+/* ---------- 하루 상세 시트 ---------- */
+function daySheet() {
+  var date = S.admin.dayDate;
+  var dd = date.split('-');
+  var title = Number(dd[1]) + '월 ' + Number(dd[2]) + '일';
+  var day = S.admin.day;
+  var body = '';
+
+  if (!day) {
+    body = '<div class="empty">불러오는 중…</div>';
+  } else {
+    var total = 0;
+    if (!day.records.length) {
+      body = '<div class="empty">이 날은 출퇴근 기록이 없어요.</div>';
+    } else {
+      for (var i = 0; i < day.records.length; i++) {
+        var r = day.records[i];
+        total += Number(r.minutes) || 0;
+        var t = r.inTime + ' ~ ' + (r.outTime || '--:--');
+        body += '<div class="rec-row"><div><div class="nm">' + esc(r.name) + '</div><div class="tm">' + t + '</div></div>' +
+          '<div class="du' + (r.outTime ? '' : ' na') + '">' + (r.outTime ? esc(r.minutesText) : '퇴근 전') + '</div></div>';
+      }
+    }
+    var doneCount = 0;
+    for (var k = 0; k < day.records.length; k++) if (day.records[k].outTime) doneCount++;
+    var summary = (doneCount === 0 && day.records.length > 0)
+      ? day.records.length + '명 근무 중'
+      : day.records.length + '명 · 총 ' + mtext(total);
+    body += '<div class="sheet-sub" style="margin-top:12px;">' + summary + '</div>';
+  }
+
+  var opts = '<option value="">직원 선택</option>';
+  var staff = (S.admin.dash && S.admin.dash.staff) || [];
+  for (var j = 0; j < staff.length; j++) {
+    opts += '<option value="' + esc(staff[j].id) + '">' + esc(staff[j].name) + (staff[j].status === '활성' ? '' : ' (비활성)') + '</option>';
+  }
+
+  var delKey = 'del:' + date;
+  return '<div class="sheet-backdrop" data-action="close-sheet"></div>' +
+    '<div class="sheet"><div class="sheet-grab"></div>' +
+    '<div class="sheet-head"><div><div class="sheet-date">' + title + ' ' + esc(day ? '(' + day.weekday + ')' : '') + '</div>' +
+    '<div class="sheet-sub">' + esc(date) + '</div></div>' +
+    '<button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+    '<div class="sheet-body">' + body +
+    '<div class="edit-box"><div class="card-title">기록 추가·수정</div>' +
+    '<div class="field" style="margin-bottom:8px;"><select id="edit-emp" data-change="edit-emp">' + opts + '</select></div>' +
+    '<div class="edit-times"><input id="edit-in" type="time"><span>~</span><input id="edit-out" type="time"></div>' +
+    '<button class="btn primary" data-action="save-record">저장</button>' +
+    '<button class="link-btn danger" data-action="delete-record">' + (S.confirm === delKey ? '정말 이 직원의 기록을 지울까요? 한 번 더' : '선택한 직원의 이 날짜 기록 지우기') + '</button>' +
+    '<p class="muted small mt8">직원이 퇴근을 못 찍었을 때 여기에서 시각을 채워 넣으면 됩니다. 저장하면 비고에 관리자 수정으로 남아요.</p>' +
+    '</div></div></div>';
+}
+
+/* ============================================================
+   시계
+   ============================================================ */
+function elapsedMinutes(inTime) {
+  var p = String(inTime).split(':');
+  var base = new Date();
+  base.setHours(Number(p[0]), Number(p[1]), 0, 0);
+  var diff = Math.floor((new Date() - base) / 60000);
+  return diff < 0 ? 0 : diff;
+}
+function elapsedText(inTime) {
+  var diff = elapsedMinutes(inTime);
+  var h = Math.floor(diff / 60), m = diff % 60;
+  if (h === 0) return m + '분';
+  return h + '시간 ' + p2(m) + '분';
+}
+function startClock() {
+  tickClock();
+  if (S.timer) return;
+  S.timer = setInterval(tickClock, 1000);
+}
+function stopClock() {
+  if (S.timer) { clearInterval(S.timer); S.timer = null; }
+}
+function tickClock() {
+  var hm = $('clock-hm');
+  if (!hm) return;
+  var now = new Date();
+  hm.textContent = p2(now.getHours()) + ':' + p2(now.getMinutes());
+  var sec = $('clock-sec');
+  if (sec) sec.textContent = ':' + p2(now.getSeconds());
+  var el = $('work-elapsed');
+  if (el && S.me && S.me.record && S.me.record.inTime && !S.me.record.outTime) {
+    el.textContent = elapsedText(S.me.record.inTime);
+  }
+}
+
+/* ============================================================
+   관리자 데이터 로딩
+   ============================================================ */
+function ensureAdminData() {
+  if (!S.admin.dash && !S.admin.loadingDash) refreshDash();
+  if (S.admin.tab === 'qr' && !S.admin.qr && !S.admin.loadingQr) loadQr();
+  if (S.admin.tab === 'settings' && !S.admin.gps && !S.admin.loadingGps) loadGps();
+}
+function refreshDash() {
+  if (S.admin.loadingDash) return Promise.resolve();
+  S.admin.loadingDash = true;
+  return srv3('adminDashboard', S.adminToken, S.admin.y, S.admin.m).then(function (r) {
+    var d = unwrap(r);
+    S.admin.dash = d;
+    S.admin.loadingDash = false;
+    if (S.view === 'admin') render();
+    return d;
+  }).catch(function (e) {
+    S.admin.loadingDash = false;
+    fail(e);
+  });
+}
+function loadQr() {
+  S.admin.loadingQr = true;
+  return srv1('adminQrInfo', S.adminToken).then(function (r) {
+    var d = unwrap(r);
+    S.admin.qr = adaptQrInfo(d);
+    S.admin.loadingQr = false;
+    if (S.view === 'admin' && S.admin.tab === 'qr') render();
+    return d;
+  }).catch(function (e) {
+    S.admin.loadingQr = false;
+    fail(e);
+  });
+}
+function reloadDay() {
+  if (!S.admin.dayDate) return Promise.resolve();
+  return srv2('adminDay', S.adminToken, S.admin.dayDate).then(function (r) {
+    S.admin.day = unwrap(r);
+    if (S.view === 'admin') render();
+  }).catch(fail);
+}
+
+function loadGps() {
+  if (S.admin.loadingGps) return Promise.resolve();
+  S.admin.loadingGps = true;
+  return srv1('adminGpsSettings', S.adminToken).then(function (r) {
+    S.admin.gps = unwrap(r);
+    S.admin.loadingGps = false;
+    if (S.view === 'admin') render();
+    return S.admin.gps;
+  }).catch(function (e) {
+    S.admin.loadingGps = false;
+    fail(e);
+  });
+}
+
+/* ============================================================
+   QR 그리기
+   ============================================================ */
+function drawQr() {
+  var box = $('qr-box');
+  if (!box || !S.admin.qr) return;
+  var target = S.admin.qr.qrUrl;
+  if (box.getAttribute('data-drawn') === target) return;
+  box.setAttribute('data-drawn', target);
+  box.innerHTML = '';
+
+  if (window.QRCode) {
+    try {
+      new QRCode(box, {
+        text: target, width: 420, height: 420,
+        colorDark: '#111111', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      return;
+    } catch (e) { /* 아래 API 방식으로 대체 */ }
+  }
+
+  var img = document.createElement('img');
+  img.alt = '매장 QR 코드';
+  img.onerror = function () {
+    box.innerHTML = '<div class="qr-fail">QR 그림을 불러오지 못했어요.<br>아래 주소를 복사해 직원에게 보내 주세요.</div>';
+  };
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=' + encodeURIComponent(target);
+  box.appendChild(img);
+}
+
+/* ============================================================
+   동작
+   ============================================================ */
+function runAction(name, el) {
+  var fn = ACTIONS[name];
+  if (!fn) return;
+  var keep = S.confirm;
+  S.confirm = null;
+  fn(el, keep);
+}
+
+var ACTIONS = {
+  'reload': function () { boot(); },
+
+  'select-emp': function (el) {
+    S.selectedEmp = el.getAttribute('data-id');
+    var chips = document.querySelectorAll('.chip');
+    for (var i = 0; i < chips.length; i++) {
+      var on = chips[i].getAttribute('data-id') === S.selectedEmp;
+      chips[i].className = 'chip' + (on ? ' on' : '');
+    }
+    var pin = $('pin-input');
+    if (pin) pin.focus();
+  },
+
+  'login': function () {
+    if (S.busy) return;
+    var emp = S.selectedEmp;
+    var pin = $('pin-input') ? $('pin-input').value : '';
+    var remember = $('remember') ? $('remember').checked : true;
+    if (!emp) { toast('본인 이름을 먼저 선택해 주세요.', true); return; }
+    if (!/^\d{4}$/.test(pin)) { toast('PIN 숫자 4자리를 입력해 주세요.', true); return; }
+    S.busy = true;
+    srv3('employeeLogin', emp, pin, remember).then(function (r) {
+      var d = unwrap(r);
+      storeSet('mgc_session', d.sessionToken, !!d.remember);
+      S.session = d.sessionToken;
+      S.busy = false;
+      buzz();
+      return loadMe();
+    }).catch(function (e) {
+      S.busy = false;
+      fail(e);
+    });
+  },
+
+  'goto-join': function () { S.view = 'join'; render(); },
+  'back-login': function () { S.view = 'login'; render(); },
+  'goto-admin': function () { gotoAdmin(); },
+  'goto-admin-login': function () { gotoAdmin(); },
+
+  'admin-login': function () {
+    if (S.busy) return;
+    var pw = $('admin-pw') ? $('admin-pw').value : '';
+    if (!pw) { toast('비밀번호를 입력해 주세요.', true); return; }
+    S.busy = true;
+    srv1('adminLogin', pw).then(function (r) {
+      var d = unwrap(r);
+      storeSet('mgc_admin', d.adminToken, false);
+      S.adminToken = d.adminToken;
+      S.admin.dash = null;
+      S.busy = false;
+      S.view = 'admin';
+      S.admin.tab = 'calendar';
+      render();
+    }).catch(function (e) { S.busy = false; fail(e); });
+  },
+
+  'admin-logout': function () {
+    var t = S.adminToken;
+    storeDel('mgc_admin');
+    S.adminToken = '';
+    S.admin.dash = null;
+    S.admin.qr = null;
+    S.admin.dayDate = '';
+    S.admin.day = null;
+    S.admin.lastPin = null;
+    if (t) srv1('adminLogout', t).catch(function () { });
+    if (S.session) {
+      S.view = 'employee';
+      render();
+      loadMe(true);
+    } else {
+      S.view = 'login';
+      render();
+    }
+  },
+
+  'admin-tab': function (el) {
+    S.admin.tab = el.getAttribute('data-tab');
+    render();
+  },
+
+  'checkin': function () { doCheck('checkIn'); },
+  'checkout': function () { doCheck('checkOut'); },
+
+  'logout-emp': function () {
+    var t = S.session;
+    storeDel('mgc_session');
+    S.session = ''; S.me = null;
+    S.view = 'login';
+    render();
+    if (t) srv1('logoutEmployee', t).catch(function () { });
+  },
+
+  'join-submit': function () {
+    if (S.busy) return;
+    var name = $('join-name').value;
+    var phone = $('join-phone').value;
+    var pin = $('join-pin').value;
+    var pin2 = $('join-pin2').value;
+    if (!name || name.trim().length < 2) { toast('이름을 2자 이상 적어 주세요.', true); return; }
+    if (!/^\d{4}$/.test(phone)) { toast('연락처 뒤 4자리를 적어 주세요.', true); return; }
+    if (!/^\d{4}$/.test(pin)) { toast('PIN 숫자 4자리를 정해 주세요.', true); return; }
+    if (pin !== pin2) { toast('PIN이 서로 다릅니다. 다시 확인해 주세요.', true); return; }
+    S.busy = true;
+    srv3('requestJoin', name, phone, pin).then(function (r) {
+      var d = unwrap(r);
+      S.busy = false;
+      S.view = 'login';
+      S.selectedEmp = '';
+      render();
+      toast(d.name + ' 님, 신청 완료! 관리자 승인을 기다려 주세요.');
+    }).catch(function (e) { S.busy = false; fail(e); });
+  },
+
+  'month-prev': function () {
+    S.admin.m--;
+    if (S.admin.m < 1) { S.admin.m = 12; S.admin.y--; }
+    S.admin.dash = null;
+    render();
+  },
+  'month-next': function () {
+    S.admin.m++;
+    if (S.admin.m > 12) { S.admin.m = 1; S.admin.y++; }
+    S.admin.dash = null;
+    render();
+  },
+
+  'open-day': function (el) {
+    var date = el.getAttribute('data-date');
+    S.admin.dayDate = date;
+    S.admin.day = null;
+    render();
+    srv2('adminDay', S.adminToken, date).then(function (r) {
+      S.admin.day = unwrap(r);
+      if (S.view === 'admin') render();
+    }).catch(fail);
+  },
+
+  'close-sheet': function () {
+    S.admin.dayDate = '';
+    S.admin.day = null;
+    render();
+  },
+
+  'approve': function (el) {
+    var id = el.getAttribute('data-id');
+    srv3('adminDecide', S.adminToken, id, 'approve').then(function (r) {
+      var d = unwrap(r);
+      toast(d.employee.name + ' 님을 승인했어요.');
+      S.admin.dash = null;
+      return refreshDash();
+    }).catch(fail);
+  },
+
+  'reject': function (el) {
+    var id = el.getAttribute('data-id');
+    srv3('adminDecide', S.adminToken, id, 'reject').then(function (r) {
+      unwrap(r);
+      toast('가입 신청을 거절했어요.');
+      S.admin.dash = null;
+      return refreshDash();
+    }).catch(fail);
+  },
+
+  'toggle-active': function (el, keep) {
+    var id = el.getAttribute('data-id');
+    var active = el.getAttribute('data-active') === '1';
+    var key = 'inactive:' + id;
+    if (active && keep !== key) {
+      S.confirm = key;
+      render();
+      toast('한 번 더 누르면 퇴사 처리됩니다.');
+      setTimeout(function () { if (S.confirm === key) S.confirm = null; }, 4000);
+      return;
+    }
+    srv3('adminSetActive', S.adminToken, id, !active).then(function (r) {
+      var d = unwrap(r);
+      toast(d.employee.name + ' 님 → ' + d.employee.status);
+      S.admin.dash = null;
+      return refreshDash();
+    }).catch(fail);
+  },
+
+  'reset-pin': function (el) {
+    var id = el.getAttribute('data-id');
+    srv2('adminResetPin', S.adminToken, id).then(function (r) {
+      var d = unwrap(r);
+      var name = '';
+      var staff = (S.admin.dash && S.admin.dash.staff) || [];
+      for (var i = 0; i < staff.length; i++) if (staff[i].id === id) name = staff[i].name;
+      S.admin.lastPin = { name: name, pin: d.pin };
+      render();
+      toast('새 PIN을 직원에게 알려 주세요.');
+    }).catch(fail);
+  },
+
+  'clear-pin': function () { S.admin.lastPin = null; render(); },
+
+  'add-staff': function () {
+    if (S.busy) return;
+    var name = $('add-name') ? $('add-name').value : '';
+    var phone = $('add-phone') ? $('add-phone').value : '';
+    var pin = $('add-pin') ? $('add-pin').value : '';
+    if (!name || name.trim().length < 2) { toast('이름을 2자 이상 적어 주세요.', true); return; }
+    S.busy = true;
+    srv4('adminAddEmployee', S.adminToken, name, phone, pin).then(function (r) {
+      var d = unwrap(r);
+      S.busy = false;
+      S.admin.lastPin = { name: d.employee.name, pin: d.pin };
+      toast(d.employee.name + ' 님을 추가했어요.');
+      S.admin.dash = null;
+      return refreshDash();
+    }).catch(function (e) { S.busy = false; fail(e); });
+  },
+
+  'print-qr': function () { try { window.print(); } catch (e) { toast('인쇄를 열 수 없어요. 화면을 캡처해 주세요.', true); } },
+
+  'copy-url': function () {
+    var text = S.admin.qr ? S.admin.qr.qrUrl : '';
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast('주소를 복사했어요.'); },
+        function () { fallbackCopy(text); });
+    } else fallbackCopy(text);
+  },
+
+  'regen-token': function (el, keep) {
+    if (keep !== 'regen') {
+      S.confirm = 'regen';
+      render();
+      toast('한 번 더 누르면 기존 QR이 사용 중지됩니다.');
+      setTimeout(function () { if (S.confirm === 'regen') S.confirm = null; }, 5000);
+      return;
+    }
+    srv1('adminRegenerateQr', S.adminToken).then(function (r) {
+      var d = unwrap(r);
+      S.admin.qr = adaptQrInfo(d);
+      render();
+      toast('새 QR을 발급했어요. 다시 인쇄해 붙여 주세요.');
+    }).catch(fail);
+  },
+
+  'fill-gps-here': function () {
+    if (S.locating) return;
+    S.locating = true;
+    toast('현재 위치를 확인하는 중…');
+    getPosition().then(function (c) {
+      S.locating = false;
+      var la = Math.round(c.lat * 1000000) / 1000000;
+      var ln = Math.round(c.lng * 1000000) / 1000000;
+      if (S.admin.gps) { S.admin.gps.lat = la; S.admin.gps.lng = ln; }
+      S.admin.gpsMsg = '현재 위치를 채웠어요. 매장에서 누른 게 맞는지 확인한 뒤 [위치 설정 저장]을 눌러 주세요.';
+      render();
+      toast('현재 위치를 채웠어요.');
+    }).catch(function (e) {
+      S.locating = false;
+      fail(e);
+    });
+  },
+
+  'save-gps': function () {
+    if (S.busy) return;
+    var enabled = $('gps-enabled') ? !!$('gps-enabled').checked : true;
+    var radius = $('gps-radius') ? String($('gps-radius').value).trim() : '';
+    var lat = $('gps-lat') ? String($('gps-lat').value).trim() : '';
+    var lng = $('gps-lng') ? String($('gps-lng').value).trim() : '';
+    if (!/^\d+$/.test(radius)) { toast('허용 반경을 숫자(m)로 넣어 주세요.', true); return; }
+    if (Number(radius) < 50 || Number(radius) > 1000) { toast('허용 반경은 50m ~ 1000m 사이로 정해 주세요.', true); return; }
+    if (lat === '' || lng === '' || !isFinite(Number(lat)) || !isFinite(Number(lng))) {
+      toast('매장 위도·경도를 숫자로 넣어 주세요.', true); return;
+    }
+    S.busy = true;
+    srv5('updateGpsSettings', S.adminToken, enabled, Number(lat), Number(lng), Number(radius)).then(function (r) {
+      var d = unwrap(r);
+      S.busy = false;
+      S.admin.gps = d;
+      S.admin.gpsMsg = d.gpsEnabled
+        ? ('저장됨 · 반경 ' + d.radius + 'm 안에서만 출·퇴근할 수 있어요.')
+        : '저장됨 · 위치 확인을 껐어요. 이제 위치와 상관없이 출·퇴근됩니다.';
+      if (S.boot) S.boot.gpsEnabled = !!d.gpsEnabled;
+      render();
+      toast(d.gpsEnabled ? '위치 설정을 저장했어요. (반경 ' + d.radius + 'm)' : '위치 확인을 껐어요.');
+    }).catch(function (e) { S.busy = false; fail(e); });
+  },
+
+  'save-store': function () {
+    var name = $('store-name') ? $('store-name').value : '';
+    if (!name || name.trim().length < 2) { toast('매장 이름을 2자 이상 적어 주세요.', true); return; }
+    srv2('adminSetStoreName', S.adminToken, name).then(function (r) {
+      var d = unwrap(r);
+      S.admin.storeMsg = '저장됨: ' + d.storeName;
+      if (S.boot) S.boot.storeName = d.storeName;
+      if (S.admin.dash) S.admin.dash.storeName = d.storeName;
+      render();
+      toast('매장 이름을 저장했어요.');
+    }).catch(fail);
+  },
+
+  'change-pw': function () {
+    var cur = $('pw-cur') ? $('pw-cur').value : '';
+    var np = $('pw-new') ? $('pw-new').value : '';
+    var np2 = $('pw-new2') ? $('pw-new2').value : '';
+    if (np.length < 4) { toast('새 비밀번호는 4자리 이상으로 정해 주세요.', true); return; }
+    if (np !== np2) { toast('새 비밀번호가 서로 다릅니다.', true); return; }
+    srv3('adminChangePassword', S.adminToken, cur, np).then(function (r) {
+      unwrap(r);
+      S.admin.pwMsg = '비밀번호를 변경했어요. 다음부터 새 비밀번호로 들어오세요.';
+      render();
+      toast('비밀번호를 변경했어요.');
+    }).catch(fail);
+  },
+
+  'save-record': function () {
+    if (S.busy) return;
+    var date = S.admin.dayDate;
+    var empId = $('edit-emp') ? $('edit-emp').value : '';
+    var tin = $('edit-in') ? $('edit-in').value : '';
+    var tout = $('edit-out') ? $('edit-out').value : '';
+    if (!empId) { toast('직원을 선택해 주세요.', true); return; }
+    S.busy = true;
+    srv5('adminUpdateRecord', S.adminToken, date, empId, tin, tout).then(function (r) {
+      var d = unwrap(r);
+      S.busy = false;
+      toast(d.deleted ? '기록을 지웠어요.' : '기록을 저장했어요.');
+      S.admin.dash = null;
+      return Promise.all([refreshDash(), reloadDay()]);
+    }).catch(function (e) { S.busy = false; fail(e); });
+  },
+
+  'delete-record': function (el, keep) {
+    var key = 'del:' + S.admin.dayDate;
+    if (keep !== key) {
+      S.confirm = key;
+      render();
+      toast('한 번 더 누르면 기록이 지워집니다.');
+      setTimeout(function () { if (S.confirm === key) S.confirm = null; }, 4000);
+      return;
+    }
+    var empId = $('edit-emp') ? $('edit-emp').value : '';
+    if (!empId) { toast('직원을 선택해 주세요.', true); return; }
+    srv5('adminUpdateRecord', S.adminToken, S.admin.dayDate, empId, '', '').then(function (r) {
+      unwrap(r);
+      toast('기록을 지웠어요.');
+      S.admin.dash = null;
+      return Promise.all([refreshDash(), reloadDay()]);
+    }).catch(fail);
+  }
+};
+
+function gotoAdmin() {
+  if (S.adminToken) {
+    S.admin.dash = null;
+    S.view = 'admin';
+    S.admin.tab = 'calendar';
+    render();
+    return;
+  }
+  S.view = 'admin-login';
+  render();
+}
+
+function doCheck(fn) {
+  if (S.busy) return;
+  if (!S.me) return;
+  var rec = S.me.record;
+  if (fn === 'checkIn' && rec && rec.inTime) { toast('오늘은 이미 출근 기록이 있어요.'); return; }
+  if (fn === 'checkOut' && (!rec || !rec.inTime)) { toast('출근 기록이 없어요. 먼저 출근하기를 눌러 주세요.', true); return; }
+
+  // 매장에서 위치 확인을 켰으면 휴대폰 위치를 먼저 받아서 함께 보냅니다.
+  if (!(S.boot && S.boot.gpsEnabled)) { sendCheck(fn, null); return; }
+
+  S.busy = true;
+  S.locating = true;
+  render();
+  getPosition().then(function (coords) {
+    S.locating = false;
+    sendCheck(fn, coords);
+  }).catch(function (e) {
+    S.locating = false;
+    S.busy = false;
+    render();
+    toast((e && e.message) ? e.message : '위치를 확인하지 못했어요. 사파리/브라우저 위치 권한을 허용해 주세요.', true);
+  });
+}
+
+function sendCheck(fn, coords) {
+  S.busy = true;
+  srv3(fn, S.session, S.qr, coords).then(function (r) {
+    var d = unwrap(r);
+    S.busy = false;
+    buzz();
+    toast(fn === 'checkIn'
+      ? '출근 완료 · ' + d.record.inTime
+      : '퇴근 완료 · ' + d.record.outTime + ' (' + d.record.minutesText + ')');
+    return loadMe();
+  }).catch(function (e) { S.busy = false; fail(e); });
+}
+
+function fallbackCopy(text) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('주소를 복사했어요.');
+  } catch (e) {
+    toast('주소를 길게 눌러 복사해 주세요.', true);
+  }
+}
+
+function fillEditTimes() {
+  var sel = $('edit-emp');
+  var tin = $('edit-in');
+  var tout = $('edit-out');
+  if (!sel || !tin || !tout) return;
+  var id = sel.value;
+  var rec = null;
+  if (S.admin.day && id) {
+    for (var i = 0; i < S.admin.day.records.length; i++) {
+      if (S.admin.day.records[i].empId === id) rec = S.admin.day.records[i];
+    }
+  }
+  tin.value = rec ? rec.inTime : '';
+  tout.value = rec ? (rec.outTime || '') : '';
+}
+
+/* ============================================================
+   이벤트
+   ============================================================ */
+document.addEventListener('click', function (ev) {
+  var el = ev.target;
+  while (el && el !== document.body && el !== document) {
+    if (el.getAttribute && el.getAttribute('data-action')) break;
+    el = el.parentNode;
+  }
+  if (!el || !el.getAttribute || !el.getAttribute('data-action')) return;
+  ev.preventDefault();
+  runAction(el.getAttribute('data-action'), el);
+});
+
+document.addEventListener('change', function (ev) {
+  var el = ev.target;
+  if (!el || !el.getAttribute) return;
+  var ch = el.getAttribute('data-change');
+  if (ch === 'filter') { S.admin.filter = el.value; render(); }
+  else if (ch === 'edit-emp') { fillEditTimes(); }
+});
+
+document.addEventListener('input', function (ev) {
+  var el = ev.target;
+  if (!el || !el.id) return;
+  if (el.id === 'pin-input') { el.value = String(el.value || '').replace(/\D/g, '').slice(0, 4); }
+  if (el.id === 'admin-pw') { el.value = String(el.value || '').replace(/\s/g, ''); }
+  if (el.id === 'join-phone' || el.id === 'join-pin' || el.id === 'join-pin2' || el.id === 'add-phone' || el.id === 'add-pin') {
+    el.value = String(el.value || '').replace(/\D/g, '').slice(0, 4);
+  }
+});
+
+document.addEventListener('keydown', function (ev) {
+  if (ev.key !== 'Enter') return;
+  var el = ev.target;
+  if (!el || !el.id) return;
+  if (el.id === 'pin-input') { ev.preventDefault(); runAction('login'); }
+  else if (el.id === 'admin-pw') { ev.preventDefault(); runAction('admin-login'); }
+});
+
+/* 시작 */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
