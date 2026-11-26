@@ -164,14 +164,13 @@ input,select,textarea{font-family:inherit;}
 .login-hero{text-align:center;padding:18px 0 22px;}
 .login-hero h1{font-size:26px;margin:0;letter-spacing:-1px;font-weight:900;}
 .login-hero p{margin:8px 0 0;color:var(--gray);font-size:13.5px;line-height:1.6;}
-.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin:6px 0 18px;}
-.chip{
-  border:1.5px solid var(--line);background:#fff;color:var(--ink2);
-  border-radius:14px;padding:14px 6px;font-size:15px;font-weight:800;letter-spacing:-.3px;
-  text-align:center;transition:.12s;
+.name-input{
+  width:100%;border:1.5px solid var(--line);background:#FAF8F3;border-radius:16px;
+  padding:16px;font-size:17px;font-weight:800;letter-spacing:-.3px;text-align:center;
+  color:var(--ink);outline:none;margin-bottom:14px;
 }
-.chip:active{transform:scale(.97);}
-.chip.on{border-color:var(--yellow);background:var(--yellow);color:#1b1b1b;box-shadow:0 6px 14px rgba(255,212,0,.35);}
+.name-input:focus{border-color:var(--yellow);background:#fff;}
+.name-input::placeholder{color:#CFCABD;font-weight:700;}
 .field-label{font-size:12px;font-weight:800;color:var(--ink2);margin:0 0 8px 2px;display:block;}
 .pin-input{
   width:100%;border:1.5px solid var(--line);background:#FAF8F3;border-radius:16px;
@@ -425,7 +424,6 @@ var S = {
   me: null,
   session: storeGet('mgc_session'),
   adminToken: storeGet('mgc_admin'),
-  selectedEmp: '',
   busy: false,
   locating: false,
   confirm: null,
@@ -730,34 +728,27 @@ function viewError() {
     '</div></div>';
 }
 
-/* ---------- 직원 로그인 ---------- */
+/* ---------- 직원 로그인 (이름 직접 입력 + PIN — 직원 이름 목록은 보이지 않음) ---------- */
 function viewLogin() {
-  var emps = (S.boot && S.boot.employees) || [];
-  var chips = '';
-  for (var i = 0; i < emps.length; i++) {
-    var on = S.selectedEmp === emps[i].id ? ' on' : '';
-    chips += '<button class="chip' + on + '" data-action="select-emp" data-id="' + esc(emps[i].id) + '">' + esc(emps[i].name) + '</button>';
-  }
-  if (!chips) {
-    chips = '<div class="empty" style="grid-column:1/-1;">아직 등록된 직원이 없어요.<br>관리자 화면에서 직원을 먼저 추가해 주세요.</div>';
-  }
-  var foot = emps.length
+  var hasEmps = !!(S.boot && S.boot.hasEmployees);
+  var foot = hasEmps
     ? '<button class="link-btn" data-action="goto-join">처음이신가요? 가입 신청</button>'
     : '<button class="link-btn" data-action="goto-admin-login">관리자로 시작하기</button>';
 
   return '<div class="wrap">' + headerHtml('<button class="ghost-btn" data-action="goto-admin">관리자</button>') +
     qrWarnHtml() +
     '<div class="login-hero"><h1>출퇴근 기록</h1>' +
-    '<p><b>' + esc(S.boot ? S.boot.today.replace(/-/g, '.') : '') + ' ' + esc(S.boot ? S.boot.weekday : '') + '요일</b><br>이름을 선택하고 PIN 4자리를 입력하세요</p></div>' +
+    '<p><b>' + esc(S.boot ? S.boot.today.replace(/-/g, '.') : '') + ' ' + esc(S.boot ? S.boot.weekday : '') + '요일</b><br>본인 이름과 PIN 4자리를 입력하세요</p></div>' +
     '<div class="card">' +
-    '<div class="emp-grid">' + chips + '</div>' +
-    '<label class="field-label">PIN 4자리</label>' +
-    '<input id="pin-input" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="••••">' +
+    '<label class="field-label" for="name-input">이름</label>' +
+    '<input id="name-input" class="name-input" type="text" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="예) 홍길동">' +
+    '<label class="field-label" for="pin-input">PIN 4자리</label>' +
+    '<input id="pin-input" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" enterkeyhint="go" placeholder="••••">' +
     '<label class="checkbox"><input type="checkbox" id="remember" checked> 이 기기에서 로그인 기억하기</label>' +
     '<button class="btn primary" data-action="login">로그인</button>' +
     foot +
     '</div>' +
-    '<p class="footnote">매장 QR을 찍고 들어오면 ① 이름 선택 ② PIN 입력 ③ 출근·퇴근 버튼 순서로 기록할 수 있어요.</p>' +
+    '<p class="footnote">매장 QR을 찍고 들어오면 ① 이름 입력 ② PIN 입력 ③ 출근·퇴근 버튼 순서로 기록할 수 있어요. 내 기록만 보입니다.</p>' +
     '</div>';
 }
 
@@ -768,7 +759,7 @@ function viewJoin() {
     '<p>관리자가 승인하면 그때부터 출퇴근을 기록할 수 있어요.</p></div>' +
     '<div class="card">' +
     '<div class="field"><label class="field-label">이름</label>' +
-    '<input id="join-name" type="text" maxlength="12" placeholder="예) 김유하" autocomplete="off"></div>' +
+    '<input id="join-name" type="text" maxlength="12" placeholder="예) 홍길동" autocomplete="off"></div>' +
     '<div class="field"><label class="field-label">연락처 뒤 4자리</label>' +
     '<input id="join-phone" type="tel" inputmode="numeric" maxlength="4" placeholder="예) 8281" autocomplete="off"></div>' +
     '<div class="row-2">' +
@@ -1036,7 +1027,7 @@ function adminStaff() {
     '<div class="card"><div class="card-title">승인 대기<span class="count">' + d.pending.length + '명</span></div>' + pending + '</div>' +
     '<div class="card"><div class="card-title">직원<span class="count">' + d.staff.length + '명</span></div>' + rows + '</div>' +
     '<div class="card"><div class="card-title">직원 직접 추가</div>' +
-    '<div class="field"><input id="add-name" type="text" maxlength="12" placeholder="이름 (예) 김유하" autocomplete="off"></div>' +
+    '<div class="field"><input id="add-name" type="text" maxlength="12" placeholder="이름 (예) 홍길동" autocomplete="off"></div>' +
     '<div class="row-2">' +
     '<div class="field"><input id="add-phone" type="tel" inputmode="numeric" maxlength="4" placeholder="뒤4 (선택)" autocomplete="off"></div>' +
     '<div class="field"><input id="add-pin" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN (자동)" autocomplete="off"></div>' +
@@ -1059,7 +1050,7 @@ function adminQr() {
     '<div class="qr-box" id="qr-box"><div class="qr-wait">QR 준비 중…</div></div>' +
     '<div class="qr-steps">' +
     '<div><b>1</b> 휴대폰 카메라로 QR 촬영</div>' +
-    '<div><b>2</b> 본인 이름 선택 → PIN 4자리</div>' +
+    '<div><b>2</b> 본인 이름 입력 → PIN 4자리</div>' +
     '<div><b>3</b> 출근할 때 [출근하기], 퇴근할 때 [퇴근하기]</div>' +
     '</div></div>' +
     '<div class="btn-row"><button class="btn line" data-action="print-qr">인쇄하기</button>' +
@@ -1315,26 +1306,15 @@ function runAction(name, el) {
 var ACTIONS = {
   'reload': function () { boot(); },
 
-  'select-emp': function (el) {
-    S.selectedEmp = el.getAttribute('data-id');
-    var chips = document.querySelectorAll('.chip');
-    for (var i = 0; i < chips.length; i++) {
-      var on = chips[i].getAttribute('data-id') === S.selectedEmp;
-      chips[i].className = 'chip' + (on ? ' on' : '');
-    }
-    var pin = $('pin-input');
-    if (pin) pin.focus();
-  },
-
   'login': function () {
     if (S.busy) return;
-    var emp = S.selectedEmp;
+    var name = $('name-input') ? String($('name-input').value || '').trim() : '';
     var pin = $('pin-input') ? $('pin-input').value : '';
     var remember = $('remember') ? $('remember').checked : true;
-    if (!emp) { toast('본인 이름을 먼저 선택해 주세요.', true); return; }
+    if (!name) { toast('본인 이름을 입력해 주세요.', true); return; }
     if (!/^\d{4}$/.test(pin)) { toast('PIN 숫자 4자리를 입력해 주세요.', true); return; }
     S.busy = true;
-    srv3('employeeLogin', emp, pin, remember).then(function (r) {
+    srv3('employeeLogin', name, pin, remember).then(function (r) {
       var d = unwrap(r);
       storeSet('mgc_session', d.sessionToken, !!d.remember);
       S.session = d.sessionToken;
@@ -1421,7 +1401,6 @@ var ACTIONS = {
       var d = unwrap(r);
       S.busy = false;
       S.view = 'login';
-      S.selectedEmp = '';
       render();
       toast(d.name + ' 님, 신청 완료! 관리자 승인을 기다려 주세요.');
     }).catch(function (e) { S.busy = false; fail(e); });
@@ -1769,6 +1748,7 @@ document.addEventListener('input', function (ev) {
   var el = ev.target;
   if (!el || !el.id) return;
   if (el.id === 'pin-input') { el.value = String(el.value || '').replace(/\D/g, '').slice(0, 4); }
+  if (el.id === 'name-input') { el.value = String(el.value || '').replace(/\s{2,}/g, ' ').slice(0, 12); }
   if (el.id === 'admin-pw') { el.value = String(el.value || '').replace(/\s/g, ''); }
   if (el.id === 'join-phone' || el.id === 'join-pin' || el.id === 'join-pin2' || el.id === 'add-phone' || el.id === 'add-pin') {
     el.value = String(el.value || '').replace(/\D/g, '').slice(0, 4);
@@ -1779,7 +1759,8 @@ document.addEventListener('keydown', function (ev) {
   if (ev.key !== 'Enter') return;
   var el = ev.target;
   if (!el || !el.id) return;
-  if (el.id === 'pin-input') { ev.preventDefault(); runAction('login'); }
+  if (el.id === 'name-input') { ev.preventDefault(); var pinEl = $('pin-input'); if (pinEl) pinEl.focus(); }
+  else if (el.id === 'pin-input') { ev.preventDefault(); runAction('login'); }
   else if (el.id === 'admin-pw') { ev.preventDefault(); runAction('admin-login'); }
 });
 
