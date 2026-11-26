@@ -743,7 +743,8 @@ function loginKeyByName(name) {
 }
 
 function viewLogin() {
-  var hasEmps = !!(S.boot && S.boot.hasEmployees);
+  // hasEmployees: 새 서버. employees: 재배포 전 예전 서버 — 둘 중 하나라도 있으면 가입 신청 링크를 보입니다.
+  var hasEmps = !!(S.boot && (S.boot.hasEmployees || (S.boot.employees && S.boot.employees.length)));
   var foot = hasEmps
     ? '<button class="link-btn" data-action="goto-join">처음이신가요? 가입 신청</button>'
     : '<button class="link-btn" data-action="goto-admin-login">관리자로 시작하기</button>';
